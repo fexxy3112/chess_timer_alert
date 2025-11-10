@@ -14,8 +14,24 @@ function insertRow(thresholdValue = 5.0, amountValue = 1) {
     const thresholdCell = document.createElement("td");
     const amountCell = document.createElement("td");
 
-    thresholdCell.innerHTML = `<input type="number" class="threshold" min=".5" value="${thresholdValue}" step=".5">`;
-    amountCell.innerHTML = `<input type="number" class="amount" min="1" max="10" value="${amountValue}">`;
+    // Threshold cell
+    const thresholdInput = document.createElement("input");
+    thresholdInput.type = "number";
+    thresholdInput.classList.add("threshold");
+    thresholdInput.min = "0.5";
+    thresholdInput.step = "0.5";
+    thresholdInput.value = thresholdValue;
+    thresholdCell.appendChild(thresholdInput);
+
+    // Amount cell
+    const amountInput = document.createElement("input");
+    amountInput.type = "number";
+    amountInput.classList.add("amount");
+    amountInput.min = "1";
+    amountInput.max = "10";
+    amountInput.value = amountValue;
+    amountCell.appendChild(amountInput);
+
 
     thresholdCell.querySelector('input').addEventListener('change', sortTableByThreshold);
     amountCell.querySelector('input').addEventListener('change', sortTableByThreshold);
