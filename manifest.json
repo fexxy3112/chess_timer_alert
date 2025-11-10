@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Chess Timer Alert",
+  "version": "1.0",
+  "description": "Plays a series of sounds when your clock is running out of time on chess.com or lichess.org.",
+  "permissions": ["activeTab", "scripting","storage"],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": "icons/icon.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://www.chess.com/*", "*://lichess.org/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["sounds/alert.wav"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "icons": {
+    "48": "icons/icon.png"
+  }
+}

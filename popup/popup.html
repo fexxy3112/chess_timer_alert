@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Chess Timer Alert</title>
+    <link rel="stylesheet" href="popup.css">
+    <meta charset="UTF-8"/>
+</head>
+<body>
+<div class="title">
+    <h1>Chess Timer Alert</h1>
+    <h2>Alert settings</h2>
+</div>
+<table class="current-list" id="alertTable">
+    <thead>
+    <tr>
+        <td>Threshold</td>
+        <td>Amount</td>
+    </tr>
+    </thead>
+    <tbody class="scroll-body">
+
+    <tr>
+        <td class="add" id="addButton" colspan="2">+</td>
+    </tr>
+    </tbody>
+</table>
+<div class="setting-row"><label for="resetAlertWhenTimeIncreases">Reset alerts when time increases</label> <input type="checkbox" checked id="resetAlertWhenTimeIncreases"/></div>
+<p class="annotation">This extension won't work when "white always at the bottom" setting is active either on chess.com
+    or lichess.org</p>
+<div class="controls">
+<!--    <button id="testSound">Test</button>-->
+    <button id="save">Save</button>
+    <button id="clear">Clear</button>
+</div>
+<p id="status" class="annotation status"></p>
+<script src="popup.js"></script>
+</body>
+</html>
