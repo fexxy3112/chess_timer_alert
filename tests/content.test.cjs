@@ -7,11 +7,20 @@ const flush = async () => { for (let i = 0; i < 12; i++) await Promise.resolve()
 function harness(initial = {}, failPlay = false) {
     let settings = ChessAlert.normalizeSettings(initial), change, message, interval, observer;
     let game = { key: 'game-1', active: true, running: true, seconds: 5, state: 'ready', message: 'Clock ready' };
-    let plays = 0, pauses = 0, failLoad = false;
+    let plays = 0, pauses = 0, failLoad = false, timerNow = 0, nextTimer = 1;
+    const timers = new Map(), playTimes = [];
+    const setTimer = (fn, delay) => {
+        const id = nextTimer++, due = timerNow + delay;
+        timers.set(id, { fn, due });
+        if (delay === 0) queueMicrotask(() => {
+            if (timers.delete(id)) fn();
+        });
+        return id;
+    };
     const api = { runtime: { getURL: p => p, onMessage: { addListener: fn => message = fn } },
         storage: { onChanged: { addListener: fn => change = fn } } };
     class Audio {
-        play() { plays++; return failPlay ? Promise.reject(new Error('blocked')) : Promise.resolve(); }
+        play() { plays++; playTimes.push(timerNow); return failPlay ? Promise.reject(new Error('blocked')) : Promise.resolve(); }
         pause() { pauses++; }
         set src(_) { this.onemptied?.(); }
     }
@@ -20,6 +29,7 @@ function harness(initial = {}, failPlay = false) {
         ChessAlertSites: { read: () => game }, Audio,
         MutationObserver: class { constructor(fn) { observer = fn; } observe() {} disconnect() {} },
         document: { documentElement: {} }, location: {}, window: { addEventListener() {} },
+        setTimeout: setTimer, clearTimeout: id => timers.delete(id),
         setInterval: fn => { interval = fn; return 1; }, clearInterval: () => { interval = null; }, queueMicrotask, Date });
     vm.runInContext(fs.readFileSync(require.resolve('../content.js'), 'utf8'), context);
     return {
@@ -28,7 +38,16 @@ function harness(initial = {}, failPlay = false) {
         status: () => message({ type: 'chess-alert-status' }),
         fail: async () => { failLoad = true; change({ chessAlertSettings: {} }, 'sync'); await flush(); },
         observe: async () => { observer?.(); await flush(); },
-        plays: () => plays, pauses: () => pauses, polling: () => !!interval
+        advance: async ms => {
+            timerNow += ms;
+            for (;;) {
+                const due = Array.from(timers.entries()).filter(([, timer]) => timer.due <= timerNow).sort((a, b) => a[1].due - b[1].due)[0];
+                if (!due) break;
+                timers.delete(due[0]); due[1].fn();
+            }
+            await flush();
+        },
+        plays: () => plays, playTimes: () => playTimes, pauses: () => pauses, polling: () => !!interval
     };
 }
 test('saving starts an initially unconfigured tab; clear cancels sounds and stops polling', async () => {
@@ -43,6 +62,13 @@ test('saving starts an initially unconfigured tab; clear cancels sounds and stop
     await app.observe();
     assert.equal(app.plays(), 1);
     assert.equal((await app.status()).state, 'disabled');
+});
+test('sound series starts each repeated signal 100ms apart without waiting for playback to end', async () => {
+    const app = harness({ alertSettings: [{ threshold: 5, amount: 3 }] }); await flush();
+    assert.equal(app.plays(), 1);
+    await app.advance(100); assert.equal(app.plays(), 2);
+    await app.advance(100); assert.equal(app.plays(), 3);
+    assert.deepEqual(app.playTimes(), [0, 100, 200]);
 });
 test('duplicate backup events do not reset played alerts or replay audio', async () => {
     const value = { alertSettings: [{ threshold: 5, amount: 1 }] };

@@ -1,6 +1,6 @@
 # Chess Timer Alert
 
-Firefox extension that plays configurable low-time warnings on Chess.com and Lichess. Version 1.3.0 adds saved, editable presets to the Quiet Mint popup; it requires no background service or runtime dependencies.
+Firefox extension that plays configurable low-time warnings on Chess.com and Lichess. Version 1.3.1 starts repeated sounds 100 ms apart, allowing them to overlap. Version 1.3.0 added saved, editable presets to the Quiet Mint popup. The extension requires no background service or runtime dependencies.
 
 The light Quiet Mint interface uses locally bundled Google Material Symbols Outlined icons (Apache 2.0; see `popup/fonts/`). No icon is drawn specifically for the popup, and Google Fonts is not contacted at runtime. **Clock & player** opens a separate settings view; Back and Escape preserve unsaved changes, while **Save changes** applies all fields. The master switch also requires saving. An empty state, save feedback and clock status make the current configuration visible.
 
@@ -14,7 +14,7 @@ Open the popup, choose a saved preset from the dropdown (initially **30 / 15 / 5
 
 ## Saved presets
 
-Create an alert list, then choose **Save current as new preset...** in the preset dropdown. Enter a name and choose **Save preset**. To edit an existing preset, select it and use the gear button next to the dropdown. The editor supports renaming, changing times and sound counts, adding/removing alerts and deleting the preset. Back or Escape cancels editing without changing the main alert list.
+Create an alert list, then choose **Save current as new preset...** in the preset dropdown. Enter a name and choose **Save preset**. To edit an existing preset, select it and use the pencil button next to the dropdown. The editor supports renaming, changing times and sound counts, adding/removing alerts and deleting the preset. Back or Escape cancels editing without changing the main alert list.
 
 Saving a preset stores a reusable list; choosing **Save changes** on the main screen applies that list to games. Presets contain times and sound counts, while clock selection, username and rearming remain separate settings. Preset names must be unique, with 1–60 characters. Up to 50 presets, each with up to 50 alerts, are supported. Presets persist locally across popup/browser restarts; they are not synced between devices. Defaults appear only when no library has ever been saved, so deleting all presets does not bring them back.
 
@@ -25,7 +25,7 @@ Use **Test sound** to verify popup audio. The game tab has its own playback perm
 ## Alarm rules
 
 - Alerts fire only while the selected clock is running and has positive time.
-- First detection below several thresholds consumes all reached thresholds and plays only the lowest one's series. Sounds play sequentially; a more urgent alarm replaces the previous series.
+- First detection below several thresholds consumes all reached thresholds and plays only the lowest one's series. Repeated sounds start 100 ms apart and may overlap; a more urgent alarm replaces the previous series.
 - With rearming enabled, a threshold becomes available again only after the selected time rises above it, including after an increment. Otherwise it plays once per detected game.
 - A new URL/game ID, changed player/color identity, observed end followed by a new active game, or a reset move list accompanied by both clocks rising resets the game state. Flipping the board keeps the state.
 - Finishing a game, losing the selected clock, disabling alerts, clearing settings, or moving to the opponent's turn cancels pending audio.
@@ -55,7 +55,7 @@ Tests cover validation, parsing, thresholds, rearming, settings migration, contr
 
 To regenerate CSS, install/use Dart Sass and run `npm run build:css`. On Windows with blocked PowerShell npm shims use `npm.cmd` and `sass.cmd`.
 
-On Windows, run `npm.cmd run package` to produce `dist/chess-timer-alert-1.3.0.zip` using `scripts/package.ps1`. The package contains only extension runtime files and the icon font with its license; it does not overwrite the existing root ZIP/XPI. It is unsigned and must be signed through Mozilla for normal Firefox distribution.
+On Windows, run `npm.cmd run package` to produce `dist/chess-timer-alert-1.3.1.zip` using `scripts/package.ps1`. The package contains only extension runtime files and the icon font with its license; it does not overwrite the existing root ZIP/XPI. It is unsigned and must be signed through Mozilla for normal Firefox distribution.
 
 ## Live Firefox release checklist
 

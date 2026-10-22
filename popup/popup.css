@@ -659,6 +659,24 @@ h1, h2, h3, p {
   flex-shrink: 0;
 }
 
+.support-note {
+  grid-column: 1/-1;
+  margin-top: 1px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 14px;
+  text-align: center;
+}
+
+.support-note a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.support-note a:hover {
+  text-decoration: underline;
+}
+
 main {
   flex: 1;
   min-height: 0;

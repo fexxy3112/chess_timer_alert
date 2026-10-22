@@ -7,6 +7,8 @@
         await settle();
         const button = id => document.getElementById(id).click();
         const inputs = name => Array.from(document.querySelectorAll('#thresholds .' + name));
+        const supportLink = document.querySelector('.support-note a');
+        assert(supportLink.href === 'mailto:chesstimer@cimach.eu', 'Footer provides the bug-report email link');
         assert(document.getElementById('gameStatus').textContent.includes('Clock detected'), 'Status messaging');
         button('openSettings');
         assert(!document.getElementById('playerView').hidden && document.getElementById('alertsView').hidden, 'Open player settings');

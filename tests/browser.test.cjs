@@ -32,7 +32,7 @@ test('browser DOM fixtures for Chess.com and Lichess', { skip: !chrome && 'Set C
 const firefox = process.env.FIREFOX_PATH || 'C:/Program Files/Mozilla Firefox/firefox.exe';
 for (const page of [
     { name: 'site DOM', url: '/tests/browser.html', result: 'PASS 9 DOM checks' },
-    { name: 'popup', url: '/popup/popup.html', result: 'PASS 19 popup checks' },
+    { name: 'popup', url: '/popup/popup.html', result: 'PASS 20 popup checks' },
     { name: 'preset lifecycle and overflow', url: '/popup/popup.html?presets=1', result: /^PASS \d+ preset checks$/, script: 'presets-fixtures', size: '390,400' },
     { name: 'Quiet Mint alerts layout', url: '/popup/popup.html?layout=alerts', result: 'PASS Quiet Mint layout', layout: 'alerts' },
     { name: 'Quiet Mint settings layout', url: '/popup/popup.html?layout=settings', result: 'PASS Quiet Mint layout', layout: 'settings' },

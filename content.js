@@ -5,38 +5,40 @@
     const engine = new ChessAlert.AlertEngine();
     let settings = engine.settings, observer, interval, scheduled = false, loadVersion = 0;
     let session = new ChessAlert.GameSession(), soundError = "", retryAt = 0;
-    let audio = null, soundGeneration = 0;
+    let audios = new Set(), soundTimers = new Set(), soundGeneration = 0;
+    const SOUND_INTERVAL_MS = 100;
     let status = { state: "loading", message: "Loading settings…" };
 
     function cancelSound() {
         soundGeneration++;
-        if (audio) { audio.pause(); audio.src = ""; audio = null; }
+        soundTimers.forEach(timer => clearTimeout(timer)); soundTimers.clear();
+        audios.forEach(current => { current.onended = current.onerror = current.onabort = current.onemptied = null; current.pause(); current.src = ""; });
+        audios.clear();
     }
-    async function playSeries(alert) {
+    function playbackFailed(alert, generation) {
+        if (generation !== soundGeneration) return;
+        soundError = "Sound blocked or unavailable. Allow site audio and use Test sound.";
+        engine.retry(alert);
+        retryAt = Date.now() + 5000;
+        cancelSound();
+    }
+    function playSeries(alert) {
         cancelSound();
         const generation = soundGeneration;
-        try {
-            for (let i = 0; i < alert.amount && generation === soundGeneration; i++) {
+        for (let i = 0; i < alert.amount; i++) {
+            const timer = setTimeout(() => {
+                soundTimers.delete(timer);
+                if (generation !== soundGeneration) return;
                 const current = new Audio(api.runtime.getURL("sounds/alert.wav"));
-                audio = current;
-                const ended = new Promise((resolve, reject) => {
-                    current.onended = resolve;
-                    current.onerror = () => reject(new Error("Audio resource unavailable"));
-                    current.onabort = resolve;
-                    current.onemptied = resolve;
-                });
-                ended.catch(() => {});
-                await current.play();
-                if (generation !== soundGeneration) { current.pause(); return; }
-                soundError = "";
-                await ended;
-                if (generation === soundGeneration) audio = null;
-            }
-        } catch (_) {
-            if (generation !== soundGeneration) return;
-            soundError = "Sound blocked or unavailable. Allow site audio and use Test sound.";
-            engine.retry(alert);
-            retryAt = Date.now() + 5000;
+                audios.add(current);
+                const cleanup = () => audios.delete(current);
+                current.onended = current.onabort = current.onemptied = cleanup;
+                current.onerror = () => { cleanup(); playbackFailed(alert, generation); };
+                current.play().then(() => {
+                    if (generation === soundGeneration) soundError = "";
+                }).catch(() => { cleanup(); playbackFailed(alert, generation); });
+            }, i * SOUND_INTERVAL_MS);
+            soundTimers.add(timer);
         }
     }
 

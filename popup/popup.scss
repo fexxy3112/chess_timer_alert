@@ -142,6 +142,9 @@ h1, h2, h3, p { margin: 0; }
 .button-primary { background: var(--accent); color: #fff; }
 .button-primary:hover { background: #285f43; }
 .app-footer { display: grid; grid-template-columns: 104px 62px minmax(0, 1fr); gap: 10px; border-top: 1px solid var(--border); padding-top: 16px; flex-shrink: 0; }
+.support-note { grid-column: 1 / -1; margin-top: 1px; color: var(--muted); font-size: 10px; line-height: 14px; text-align: center; }
+.support-note a { color: var(--accent); text-decoration: none; }
+.support-note a:hover { text-decoration: underline; }
 main { flex: 1; min-height: 0; min-width: 0; overflow-y: auto; overflow-x: hidden; margin-bottom: 13px; scrollbar-width: none; }
 main::-webkit-scrollbar { display: none; }
 .feedback { color: var(--accent); font-size: 11px; line-height: 16px; margin-bottom: 12px; max-height: 64px; flex-shrink: 0; overflow-y: auto; overflow-wrap: anywhere; scrollbar-width: thin; }
