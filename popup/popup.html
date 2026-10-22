@@ -1,38 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="color-scheme" content="light">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Chess Timer Alert</title>
+    <link rel="preload" href="fonts/material-symbols-outlined.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="popup.css">
-    <meta charset="UTF-8"/>
 </head>
-<body>
-<div class="title">
-    <h1>Chess Timer Alert</h1>
-    <h2>Alert settings</h2>
-</div>
-<table class="current-list" id="alertTable">
-    <thead>
-    <tr>
-        <td>Threshold</td>
-        <td>Amount</td>
-    </tr>
-    </thead>
-    <tbody class="scroll-body">
+<body data-view="alerts">
+<div class="app-shell">
+    <header class="app-header">
+        <div class="brand-mark"><span class="symbol" aria-hidden="true">notifications</span></div>
+        <div class="brand-copy"><h1>Chess Timer</h1><p>A little more time.</p></div>
+        <label class="switch enabled-switch" for="enabled">
+            <span id="enabledLabel" class="switch-state" aria-hidden="true">ON</span>
+            <input type="checkbox" id="enabled" checked aria-label="Enable alerts">
+            <span class="switch-track" aria-hidden="true"></span>
+        </label>
+    </header>
 
-    <tr>
-        <td class="add" id="addButton" colspan="2">+</td>
-    </tr>
-    </tbody>
-</table>
-<div class="setting-row"><label for="resetAlertWhenTimeIncreases">Reset alerts when time increases</label> <input type="checkbox" checked id="resetAlertWhenTimeIncreases"/></div>
-<p class="annotation">This extension won't work when "white always at the bottom" setting is active either on chess.com
-    or lichess.org</p>
-<div class="controls">
-<!--    <button id="testSound">Test</button>-->
-    <button id="save">Save</button>
-    <button id="clear">Clear</button>
+    <main>
+        <section id="alertsView" aria-label="Alert settings">
+            <div class="connection" id="connection" data-state="waiting" role="status" aria-live="polite" aria-atomic="true">
+                <span id="connectionIcon" class="symbol connection-icon" aria-hidden="true">info</span>
+                <div class="connection-copy">
+                    <p id="connectionSource" class="connection-source">Chess.com &amp; Lichess</p>
+                    <h2 id="connectionTitle">Checking your clock</h2>
+                    <p id="gameStatus" class="connection-detail">Looking for an open game.</p>
+                </div>
+                <span id="connectionBadge" class="connection-badge">WAIT</span>
+            </div>
+
+            <section class="alerts-section" aria-labelledby="alertsHeading">
+                <h2 id="alertsHeading" class="eyebrow">Alerts</h2>
+                <table id="alertTable" class="alert-table">
+                    <thead><tr><th scope="col">Seconds</th><th scope="col">Sounds</th><th scope="col"><span class="sr-only">Remove</span></th></tr></thead>
+                    <tbody id="thresholds"></tbody>
+                </table>
+                <div id="emptyState" class="empty-state" hidden>
+                    <span class="symbol" aria-hidden="true">notifications</span>
+                    <p>No alerts yet</p><span>Choose a preset or add your own alerts.</span>
+                </div>
+                <div class="threshold-actions">
+                    <button id="addButton" class="button button-outline" type="button"><span class="symbol" aria-hidden="true">add</span>Add alert</button>
+                    <div class="preset-group">
+                        <div class="preset-select-wrap"><label class="sr-only" for="preset">Alert preset</label><select id="preset" title="Load a saved preset; Save changes applies it to your games"><option value="">Choose preset</option></select><span class="symbol" aria-hidden="true">expand_more</span></div>
+                        <button id="editPreset" class="preset-edit" type="button" title="Edit selected preset" aria-label="Edit selected preset" disabled><span class="symbol" aria-hidden="true">edit</span></button>
+                    </div>
+                </div>
+            </section>
+
+            <label class="setting-switch" for="resetAlertWhenTimeIncreases">
+                <span><span class="setting-title">Rearm after time increases</span><span class="setting-hint">Only above each threshold</span></span>
+                <span class="switch"><input type="checkbox" checked id="resetAlertWhenTimeIncreases"><span class="switch-track" aria-hidden="true"></span></span>
+            </label>
+
+            <button id="openSettings" class="settings-link" type="button" aria-controls="playerView">
+                <span class="symbol" aria-hidden="true">settings</span><span>Clock &amp; player</span>
+                <span id="trackingSummary" class="tracking-summary">Automatic</span><span class="symbol" aria-hidden="true">chevron_right</span>
+            </button>
+        </section>
+
+        <section id="playerView" class="player-view" aria-labelledby="playerHeading" hidden>
+            <button id="backTop" class="back-link" type="button"><span class="symbol" aria-hidden="true">arrow_back</span>Back to alerts</button>
+            <h2 id="playerHeading" tabindex="-1">Clock &amp; player</h2>
+            <p class="view-description">Follow your clock, even when the board flips.</p>
+            <label class="field-label" for="clockColor">Track clock</label>
+            <div class="select-wrap"><select id="clockColor"><option value="auto">My username (automatic)</option><option value="white">White (manual)</option><option value="black">Black (manual)</option></select><span class="symbol" aria-hidden="true">expand_more</span></div>
+            <label class="field-label" for="username">Your username</label>
+            <input id="username" class="username-input" type="text" maxlength="100" placeholder="Optional if detected automatically" autocomplete="off" spellcheck="false" aria-describedby="trackingHelp">
+            <div class="helper-card"><span class="symbol" aria-hidden="true">info</span><div><p>We'll match you to a player.</p><span id="trackingHelp">Use White or Black if automatic selection cannot identify your clock. Manual color also tracks watched games; update it when changing sides.</span></div></div>
+        </section>
+
+        <section id="presetView" class="preset-view" aria-labelledby="presetHeading" hidden>
+            <button id="backPreset" class="back-link" type="button"><span class="symbol" aria-hidden="true">arrow_back</span>Back to alerts</button>
+            <h2 id="presetHeading" tabindex="-1">New preset</h2>
+            <p class="view-description">Save a reusable list of times and sounds.</p>
+            <label class="field-label" for="presetName">Preset name</label>
+            <input id="presetName" class="username-input" type="text" maxlength="60" required autocomplete="off" placeholder="For example: Blitz with increment">
+            <section class="preset-alerts" aria-labelledby="presetAlertsHeading">
+                <h3 id="presetAlertsHeading" class="eyebrow">Preset alerts</h3>
+                <table class="alert-table"><thead><tr><th scope="col">Seconds</th><th scope="col">Sounds</th><th scope="col"><span class="sr-only">Remove</span></th></tr></thead><tbody id="presetThresholds"></tbody></table>
+                <div class="preset-editor-actions"><button id="addPresetAlert" class="button button-outline" type="button"><span class="symbol" aria-hidden="true">add</span>Add alert</button><button id="deletePreset" class="button button-outline" type="button" hidden>Delete preset</button></div>
+            </section>
+        </section>
+    </main>
+
+    <p id="status" class="feedback" role="status" aria-live="polite"></p>
+    <footer class="app-footer">
+        <button id="testSound" class="button button-outline" type="button">Test sound</button>
+        <button id="clear" class="button button-soft" type="button">Clear</button>
+        <button id="backFooter" class="button button-outline" type="button" hidden>Back to alerts</button>
+        <button id="save" class="button button-primary" type="button">Save changes</button>
+    </footer>
 </div>
-<p id="status" class="annotation status"></p>
+<script src="../core.js"></script>
+<script src="../settings.js"></script>
 <script src="popup.js"></script>
 </body>
 </html>

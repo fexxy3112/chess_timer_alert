@@ -1,0 +1,29 @@
+/dist/
+/node_modules/
+
+# IDE metadata
+.idea/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Logs and temporary files
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Local caches
+/.sass-cache/
+/.cache/
+
+# Existing root-level release packages; the package script writes release ZIPs to dist/
+/chess_timer_alert.zip
+/chess_timer_alert.xpi
