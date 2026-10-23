@@ -56,16 +56,3 @@ Tests cover validation, parsing, thresholds, rearming, settings migration, contr
 To regenerate CSS, install/use Dart Sass and run `npm run build:css`. On Windows with blocked PowerShell npm shims use `npm.cmd` and `sass.cmd`.
 
 On Windows, run `npm.cmd run package` to produce `dist/chess-timer-alert-1.3.1.zip` using `scripts/package.ps1`. The package contains only extension runtime files and the icon font with its license; it does not overwrite the existing root ZIP/XPI. It is unsigned and must be signed through Mozilla for normal Firefox distribution.
-
-## Live Firefox release checklist
-
-Before publishing, verify both sites in a signed-in Firefox session:
-
-- Apply settings during a game, then clear and re-enable them without reloading.
-- Play both colors, flip the board, and enable the site's white-at-bottom option.
-- Check short clocks, an increment crossing a threshold, and a long clock with hours.
-- Finish and rematch, including navigation without a document reload.
-- Watch someone else's game: automatic mode stays silent; manual color is explicit.
-- Check a background tab, blocked site audio, and recovery after granting playback permission.
-
-Authenticated live games and Firefox extension signing are not covered by the automated fixtures.
